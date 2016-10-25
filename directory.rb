@@ -56,7 +56,7 @@ def input_students
   students
 end
 
-def sort_into_cohorts(students)
+def print_by_cohorts(students)
   arr = []
   arr = students.map { |e| e[:cohort] }
   arr.sort.uniq.each { |cohort| print_names(students.select { |student| student.has_value?(cohort)})}
@@ -64,5 +64,5 @@ end
 
 students = input_students
 print_header
-sort_into_cohorts(students)
+print_by_cohorts(students)
 print_footer(students)
