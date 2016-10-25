@@ -1,9 +1,10 @@
 @students = []
 
 def interactive_menu
+  try_load_students
   loop do
     print_menu
-    process(gets.chomp)
+    process($stdin.gets.chomp)
   end
 end
 
@@ -64,9 +65,9 @@ def input_students
   puts "Please enter the names of the students"
   puts "To finish, just hit return twice."
   #@students = []
-  name = gets.gsub(/\n/, "").to_sym
+  name = $stdin.gets.gsub(/\n/, "").to_sym
   puts "Please enter their Cohort (Note: Must be Sep, Nov or Jan otherwise will be put in unknow catagory.)"
-  cohort = gets.chomp.to_sym
+  cohort = $stdin.gets.chomp.to_sym
   if cohort == :Sep || cohort == :Nov || cohort == :Jan
   else
     cohort = :unknown
@@ -80,9 +81,9 @@ def input_students
       puts "Now we have #{@students.count} student"
     end
     puts "Same again. Name:"
-    name = gets.chomp.to_sym
+    name = $stdin.gets.chomp.to_sym
     puts "Cohort: "
-    cohort = gets.chomp.to_sym
+    cohort = $stdin.gets.chomp.to_sym
     if cohort == :Sep || cohort == :Nov || cohort == :Jan
     else
       cohort = :unknown
@@ -107,13 +108,25 @@ def save_students
   file.close
 end
 
-def load_students
-  file = File.open("students.csv", "r")
+def load_students(filename = "students.csv")
+  file = File.open(filename, "r")
   file.readlines.each do |line|
     name, cohort = line.chomp.split(",")
     @students << {name: name, cohort: cohort.to_sym}
   end
   file.close
+end
+
+def try_load_students
+  filename = ARGV.first
+  return if filename.nil?
+  if File.exists?(filename)
+    load_students(filename)
+    puts "Loaded #{@students.count} from #{filename}"
+  else
+    puts "Sorry #{filename} doesn't exist."
+    exit
+  end
 end
 
 interactive_menu
