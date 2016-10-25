@@ -1,33 +1,68 @@
 
 def print_header
-  puts "The students of Villians Academy"
-  puts "-------------"
+  puts "The students of Villians Academy".center(50)
+  puts "-------------".center(50)
 end
 
 def print_names(names)
-  names.each {|student| puts "#{student[:name]} (#{student[:cohort]} cohort)"}
+  if !names.empty?
+  t = 0
+    while names[t] != nil
+      puts "#{t + 1}. #{names[t][:name]} (#{names[t][:cohort]} cohort).".center(50)
+      puts "They like #{names[t][:hobby]}".center(50)
+      puts "They're #{names[t][:height]}cm tall".center(50)
+      puts "They were born in #{names[t][:country_of_birth]}.".center(50)
+      t += 1
+    end
+  end
 end
 
 def print_footer(names)
-  puts "Overall we have #{names.count} great students."
+  puts "Overall we have #{names.count} great students.".center(50)
 end
 
 def input_students
   puts "Please enter the names of the students"
-  puts "To finish, just hit return twice"
+  puts "To finish, just hit return twice."
 
   students = []
 
-  name = gets.chomp
+  name = gets.gsub(/\n/, "").to_sym
+  puts "Please enter their Cohort (Note: Must be Sep, Nov or Jan otherwise will be put in unknow catagory.)"
+  cohort = gets.chomp.to_sym
+  if cohort == :Sep || cohort == :Nov || cohort == :Jan
+  else
+    cohort = :unknown
+  end
+
 
   while !name.empty? do
-    students << {name: name, cohort: :november}
-    puts "Now we have #{students.count} students"
-    name = gets.chomp
+    students << {name: name, cohort: cohort, hobby: :coding, height: :'175', country_of_birth: :Spain}
+
+    if students.count > 1
+      puts "Now we have #{students.count} students"
+    else
+      puts "Now we have #{students.count} student"
+    end
+    puts "Same again. Name:"
+    name = gets.chomp.to_sym
+    puts "Cohort: "
+    cohort = gets.chomp.to_sym
+    if cohort == :Sep || cohort == :Nov || cohort == :Jan
+    else
+      cohort = :unknown
+    end
   end
   students
-  end
+end
+
+def sort_into_cohorts(students)
+  arr = []
+  arr = students.map { |e| e[:cohort] }
+  arr.sort.uniq.each { |cohort| print_names(students.select { |student| student.has_value?(cohort)})}
+end
+
 students = input_students
 print_header
-print_names(students)
+sort_into_cohorts(students)
 print_footer(students)
