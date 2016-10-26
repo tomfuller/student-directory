@@ -11,8 +11,8 @@ end
 def print_menu
   puts "1. Input the students"
   puts "2. Show the students"
-  puts "3. Save the list to students.csv"
-  puts "4. Load the list from students.csv"
+  puts "3. Save the list"
+  puts "4. Load the list"
   puts "9. Exit"
 end
 
@@ -64,33 +64,38 @@ end
 def input_students
   puts "Please enter the names of the students"
   puts "To finish, just hit return twice."
-  #@students = []
   name = $stdin.gets.gsub(/\n/, "").to_sym
   puts "Please enter their Cohort (Note: Must be Sep, Nov or Jan otherwise will be put in unknow catagory.)"
   cohort = $stdin.gets.chomp.to_sym
-  if cohort == :Sep || cohort == :Nov || cohort == :Jan
-  else
+  if cohort_input_check(cohort) != true
     cohort = :unknown
   end
   while !name.empty? do
-    @students << {name: name, cohort: cohort, hobby: :coding, height: :'175', country_of_birth: :Spain}
-
-    if @students.count > 1
-      puts "Now we have #{@students.count} students"
-    else
-      puts "Now we have #{@students.count} student"
-    end
+    add_to_student_arr(name, cohort)
+    student_plural
     puts "Same again. Name:"
     name = $stdin.gets.chomp.to_sym
     puts "Cohort: "
     cohort = $stdin.gets.chomp.to_sym
-    if cohort == :Sep || cohort == :Nov || cohort == :Jan
-    else
+    if cohort_input_check(cohort) != true
       cohort = :unknown
     end
   end
 end
 
+def student_plural
+  if @students.count > 1
+    puts "Now we have #{@students.count} students"
+  else
+    puts "Now we have #{@students.count} student"
+  end
+end
+
+def cohort_input_check(cohort)
+  if cohort == :Sep || cohort == :Nov || cohort == :Jan
+  return true
+  end
+end
 
 def print_by_cohorts
   arr = []
@@ -99,34 +104,48 @@ def print_by_cohorts
 end
 
 def save_students
-  file = File.open("students.csv", "w")
-  @students.each do |student|
-    student_data = [student[:name], student[:cohort]]
+  puts "Which file would you like to save to?"
+  filename = $stdin.gets.chomp
+  File::open(filename, "w") do |file|
+    @students.each do |student|
+    student_data = [student[:name], student[:cohort], student[:coding], student[:'175'], student[:Spain]]
     csv_line = student_data.join(",")
-    file.puts csv_line
+    file.puts(csv_line)
+    end
   end
-  file.close
+  puts "Saved #{@students.count} to #{filename}"
 end
 
-def load_students(filename = "students.csv")
-  file = File.open(filename, "r")
-  file.readlines.each do |line|
-    name, cohort = line.chomp.split(",")
-    @students << {name: name, cohort: cohort.to_sym}
+def load_students
+puts "Which filename would you like to load from? Hit RETURN for 'students.csv'"
+  filename = $stdin.gets.chomp
+  if filename.empty?
+    filename = 'students.csv'
   end
-  file.close
+  File::open(filename, "r") do |file|
+    IO.readlines(file).each do |line|
+    name, cohort = line.chomp.split(",")
+    add_to_student_arr(name, cohort)
+  end
+end
+  puts "Loaded #{@students.count} from #{filename}"
 end
 
 def try_load_students
   filename = ARGV.first
-  return if filename.nil?
-  if File.exists?(filename)
+  if filename.nil?
+    load_students
+  elsif File.exists?(filename)
     load_students(filename)
     puts "Loaded #{@students.count} from #{filename}"
   else
     puts "Sorry #{filename} doesn't exist."
     exit
   end
+end
+
+def add_to_student_arr(name, cohort)
+  @students << {name: name, cohort: cohort.to_sym, hobby: :coding, height: :'175', country_of_birth: :Spain}
 end
 
 interactive_menu
