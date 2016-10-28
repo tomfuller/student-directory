@@ -113,16 +113,10 @@ def save_students
   if filename.empty?
     filename = 'students.csv'
   end
-  #File::open(filename, "w") do |file|
   CSV.open(filename, 'wb') do |csv|
-    csv = CSV.new(IO, '<<')
     @students.each do |student|
     student_data = [student[:name], student[:cohort], student[:coding], student[:'175'], student[:Spain]]
-    csv_string = CSV.generate_line do |line|
       csv << student_data
-    end
-    #csv_line = student_data.to_csv
-    #csv << csv_line
     end
   end
   puts "Saved #{@students.count} to #{filename}"
@@ -134,12 +128,10 @@ puts "Which filename would you like to load from? Hit RETURN for 'students.csv'"
   if filename.empty?
     filename = 'students.csv'
   end
-  #File::open(filename, "r") do |file|
-    CSV.foreach(filename).each do |line|
-    name, cohort = line#.chomp.split(",")
+    CSV.foreach(filename) do |line|
+    name, cohort = line
     add_to_student_arr(name, cohort)
   end
-  #end
   puts "Loaded #{@students.count} from #{filename}"
 end
 
