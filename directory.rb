@@ -1,5 +1,5 @@
 @students = []
-
+require 'csv'
 def interactive_menu
   try_load_students
   loop do
@@ -46,14 +46,18 @@ end
 
 def print_names(names)
   if !names.empty?
-  t = 0
-    while names[t] != nil
-      puts "#{t + 1}. #{names[t][:name]} (#{names[t][:cohort]} cohort).".center(50)
-      puts "They like #{names[t][:hobby]}".center(50)
-      puts "They're #{names[t][:height]}cm tall".center(50)
-      puts "They were born in #{names[t][:country_of_birth]}.".center(50)
-      t += 1
-    end
+    t = 0
+        while names[t] != nil
+          if names[t][:name].to_s.downcase.chars.first == 'd' && names[t][:name].to_s.length < 12
+            puts "#{t + 1}. #{names[t][:name]} (#{names[t][:cohort]} cohort).".center(50)
+            puts "They like #{names[t][:hobby]}".center(50)
+            puts "They're #{names[t][:height]}cm tall".center(50)
+            puts "They were born in #{names[t][:country_of_birth]}.".center(50)
+            t += 1
+          else
+            t += 1
+          end
+        end
   end
 end
 
@@ -104,13 +108,21 @@ def print_by_cohorts
 end
 
 def save_students
-  puts "Which file would you like to save to?"
+  puts "Which file would you like to save to? Hit RETURN for 'students.csv'"
   filename = $stdin.gets.chomp
-  File::open(filename, "w") do |file|
+  if filename.empty?
+    filename = 'students.csv'
+  end
+  #File::open(filename, "w") do |file|
+  CSV.open(filename, 'wb') do |csv|
+    csv = CSV.new(IO, '<<')
     @students.each do |student|
     student_data = [student[:name], student[:cohort], student[:coding], student[:'175'], student[:Spain]]
-    csv_line = student_data.join(",")
-    file.puts(csv_line)
+    csv_string = CSV.generate_line do |line|
+      csv << student_data
+    end
+    #csv_line = student_data.to_csv
+    #csv << csv_line
     end
   end
   puts "Saved #{@students.count} to #{filename}"
@@ -122,12 +134,12 @@ puts "Which filename would you like to load from? Hit RETURN for 'students.csv'"
   if filename.empty?
     filename = 'students.csv'
   end
-  File::open(filename, "r") do |file|
-    IO.readlines(file).each do |line|
-    name, cohort = line.chomp.split(",")
+  #File::open(filename, "r") do |file|
+    CSV.foreach(filename).each do |line|
+    name, cohort = line#.chomp.split(",")
     add_to_student_arr(name, cohort)
   end
-end
+  #end
   puts "Loaded #{@students.count} from #{filename}"
 end
 
